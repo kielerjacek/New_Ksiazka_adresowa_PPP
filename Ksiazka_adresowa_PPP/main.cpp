@@ -73,6 +73,8 @@ void addNewContact(std::vector<AddressBook>&Contact,int &contactIDNumber){
     Contact.push_back(AddressBook(newContact));
     
     file.close();
+    
+    return;
 }
 
 void displayContact(std::vector<AddressBook>Contact, std::vector<AddressBook>::iterator itr){
@@ -82,6 +84,8 @@ void displayContact(std::vector<AddressBook>Contact, std::vector<AddressBook>::i
     std::cout<<"ADRES: "<<itr->address<<std::endl;
     std::cout<<"E-MAIL: "<<itr->emailAddress<<std::endl;
     std::cout<<std::endl;
+    
+    return;
 }
 
 void displayAllContacts(std::vector<AddressBook>Contacts){
@@ -89,11 +93,16 @@ void displayAllContacts(std::vector<AddressBook>Contacts){
     
     std::cout<<std::endl<<std::endl;
     std::cout<<"********** KSIAZKA ADRESOWA **********"<<std::endl<<std::endl;
+    
     for(itr=Contacts.begin(); itr!=Contacts.end(); itr++) {
         displayContact(Contacts, itr);
     }
+    
     std::cout<<"Nacisnij ENTER aby wrocic do MENU...";
+    
     getchar();
+    
+    return;
 }
 
 
@@ -120,16 +129,17 @@ void findContact(std::vector<AddressBook>Contacts) {
     if(found==false) {
         std::cout<<"NIE ZNALEZIONO KONTAKTU "<<contactName<<std::endl<<std::endl;
     }
+    
     std::cout<<"Nacisnij ENTER aby wrocic do MENU...";
     getchar();
 }
 
 void displayTheAmountOfContacts(std::vector<AddressBook>Contact) {
-    if(Contact.size()!=0) {
+    if(Contact.size()!=0)
         std::cout<<"W TWOJEJ KSIAZCE ADRESOWEJ ZAPISANYCH JEST "<<Contact.size()<<" KONTAKTOW"<<std::endl;
-    } else {
+    else
         std::cout<<"KSIAZKA ADRESOWA JEST PUSTA"<<std::endl;
-    }
+    return;
 }
 
 void quitTheProgram() {
@@ -138,6 +148,8 @@ void quitTheProgram() {
     std::cout<<"Nacisnij ENTER aby zakonczyc dzialanie programu";
     getchar();
     exit(0);
+    
+    return;
 }
 
 void displayEmptyAddressBook() {
@@ -146,9 +158,11 @@ void displayEmptyAddressBook() {
     std::cout<<"Nacisnij ENTER aby kontynuowac...";
     getchar();
     std::cout<<std::endl<<std::endl;
+    
+    return;
 }
 
-void displayMENU(std::vector<AddressBook>&Contact) {
+void displayMENU(std::vector<AddressBook>Contact) {
     std::cout<<std::endl<<std::endl;
     
     std::cout<<"********** KSIAZKA ADRESOWA **********"<<std::endl;
@@ -162,80 +176,100 @@ void displayMENU(std::vector<AddressBook>&Contact) {
     std::cout<<"0.\tKONIEC"<<std::endl;
     std::cout<<std::endl;
     std::cout<<"Wybierz odpowiedni klawisz: ";
+    
+    return;
+}
+
+void saveContactFromAFileLine (std::vector<AddressBook>&Contacts ,std::string fileLine) {
+    AddressBook newContact;
+    std::string contactField;
+    std::size_t fileLineLength;
+    int numberOfContactField=1;
+    int numberOfFileLine=1;
+    int contactIDNumber;
+    
+    fileLineLength=fileLine.length();
+    
+    for(int i=0;i<fileLineLength;i++){
+        if(fileLine[i]!='|'){
+            contactField=contactField+fileLine[i];
+        } else {
+            switch (numberOfContactField) {
+                case 1: {
+                    newContact.idNumber=convertIntToString(contactField);
+                    contactIDNumber=newContact.idNumber;
+                }
+                    break;
+                case 2:
+                    newContact.firstName=contactField;
+                    break;
+                case 3:
+                    newContact.lastName=contactField;
+                    break;
+                case 4:
+                    newContact.phoneNumber=contactField;
+                    break;
+                case 5:
+                    newContact.address=contactField;
+                    break;
+                case 6: {
+                    newContact.emailAddress=contactField;
+                    Contacts.push_back(AddressBook(newContact));
+                }
+                    break;
+            }
+            
+            numberOfContactField++;
+            contactField="";
+            
+            if(numberOfContactField==7){
+                numberOfContactField=1;
+            }
+        }
+    }
+    numberOfFileLine++;
+    
+    
+    return;
+}
+
+int idNumberOfTheLastContact(std::vector<AddressBook>Contacts){
+    std::vector<AddressBook>::iterator itr = Contacts.end()-1;
+    return itr->idNumber;
 }
 
 std::vector<AddressBook>loadContactsFromAFile(int &contactIDNumber) {
-    std::vector<AddressBook>Contact;
+    std::vector<AddressBook>Contacts;
     AddressBook newContact;
     std::fstream file;
     std::string fileLine;
-    int numberOfFileLine=1;
-    std::size_t fileLineLength;
-    int numberOfContactField=1;
-    
     std::string contactField;
+    std::vector<AddressBook>::iterator itr;
     
     file.open("mojekontakty.txt", std::ios::in);
+    
     if(file.good()==false) {
         std::cout<<"Nie mozna otworzyc pliku z danymi kontaktowymi!"<<std::endl<<std::endl;
         std::cout<<"Nacisnij ENTER aby utworzyc nowa ksiazke adresowa...";
         getchar();
         file.open("mojekontakty.txt",std::ios::out | std::ios::app);
     }
-    while (getline(file, fileLine)) {
-        
-        fileLineLength=fileLine.length();
-        
-        // trzeba stworzyc funkcje ktora bedzie wyluskiwala z linii odp fragmenty kontaktu
-        for(int i=0;i<fileLineLength;i++){
-            if(fileLine[i]!='|'){
-                contactField=contactField+fileLine[i];
-            } else {
-                
-                switch (numberOfContactField) {
-                    case 1: {
-                        newContact.idNumber=convertIntToString(contactField);
-                        contactIDNumber=newContact.idNumber;
-                    }
-                        break;
-                    case 2:
-                        newContact.firstName=contactField;
-                        break;
-                    case 3:
-                        newContact.lastName=contactField;
-                        break;
-                    case 4:
-                        newContact.phoneNumber=contactField;
-                        break;
-                    case 5:
-                        newContact.address=contactField;
-                        break;
-                    case 6: {
-                        newContact.emailAddress=contactField;
-                        Contact.push_back(AddressBook(newContact));
-                    }
-                        break;
-                }
-                
-                numberOfContactField++;
-                contactField="";
-                
-                if(numberOfContactField==7){
-                    numberOfContactField=1;
-                }
-            }
-        }
-        numberOfFileLine++;
-    }
+    
+    while (getline(file, fileLine))
+        saveContactFromAFileLine(Contacts, fileLine);
+    
     file.close();
     
-    return Contact;
+    contactIDNumber = idNumberOfTheLastContact(Contacts);
+    
+    return Contacts;
 }
 
 int main() {
-    int numerIdentyfikacyjnyKontaktu=1;
+    int contactIDNumber=1;
     char selectionKey;
-    std::vector<AddressBook>newContact(loadContactsFromAFile(numerIdentyfikacyjnyKontaktu));
+    
+    std::vector<AddressBook>newContact(loadContactsFromAFile(contactIDNumber));
     
     while (true) {
         displayMENU(newContact);
@@ -243,33 +277,27 @@ int main() {
         selectionKey=getchar();
         
         switch(selectionKey) {
-            case '1': {
-                addNewContact(newContact,numerIdentyfikacyjnyKontaktu);
-            }
-                break;
-            case '2': {
-                if(newContact.size()!=0)
-                    displayAllContacts(newContact);
-                else
-                    displayEmptyAddressBook();
-            }
-                break;
-            case '3': {
-                if(newContact.size()!=0)
-                    findContact(newContact);
-                else
-                    displayEmptyAddressBook();
-            }
-                break;
-            case '0': {
-                quitTheProgram();
-                {
-                    break;
-                default:
-                    continue;
-                }
-            }
+            case '1':   addNewContact(newContact,contactIDNumber);
+                        break;
+                
+            case '2':   if (newContact.size()!=0) displayAllContacts(newContact);
+                        else displayEmptyAddressBook();
+                        break;
+                
+            case '3':   if (newContact.size()!=0) findContact(newContact);
+                        else displayEmptyAddressBook();
+                        break;
+        
+            case '0':   quitTheProgram();
+                        break;
+    
+            default:
+            continue;
         }
     }
     return 0;
 }
+
+// edytywanie kontaktow
+// usuwanie kontaktow
+
