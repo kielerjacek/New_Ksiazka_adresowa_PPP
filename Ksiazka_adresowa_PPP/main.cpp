@@ -15,196 +15,145 @@
 
 //using namespace std;
 
-struct KsiazkaAdresowa {
-    int numerIdentyfikacyjny;
-    std::string numerTelefonu,imie,nazwisko,adresZamieszkania,adresEmail;
+struct AddressBook {
+    int idNumber;
+    std::string phoneNumber,firstName,lastName,address,emailAddress;
 };
 
-
-int zamianaStringNaInt(std::string str) {
-    int liczbaInt;
+int convertIntToString(std::string str) {
+    int intNumber;
     std::stringstream ss;
     ss<<str;
-    ss>>liczbaInt;
-    return liczbaInt;
+    ss>>intNumber;
+    return intNumber;
 }
 
-std::string wprowadzNumerTelefonu() {
-    std::string numerTelefonu;
-    std::size_t dlugoscNumeruTelefonu=0;
-    std::cin.sync();
-    getline(std::cin,numerTelefonu);
-    dlugoscNumeruTelefonu=numerTelefonu.length();
-    return numerTelefonu;
-}
-
-
-void dodajNowyKontakt(std::vector<KsiazkaAdresowa>&Kontakt,int numerIdKontaktu){
-    std::fstream plik;
-    plik.open("mojekontakty.txt",std::ios::out | std::ios::app);
-    KsiazkaAdresowa nowyKontakt;
-    std::string numTel;
+void addNewContact(std::vector<AddressBook>&Contact,int &contactIDNumber){
+    std::fstream file;
+    file.open("mojekontakty.txt",std::ios::out | std::ios::app);
+    AddressBook newContact;
+    
     std::cout<<std::endl<<std::endl;
-    std::cout<<"***** TWORZENIE NOWEGO KONTAKTU *****"<<std::endl<<std::endl;
-    nowyKontakt.numerIdentyfikacyjny=(numerIdKontaktu);
+    
+    contactIDNumber++;
+    newContact.idNumber=contactIDNumber;
+    
+    std::cout<<"***** TWORZENIE NOWEGO KONTAKTU *** ";
+    std::cout<<"ID: "<<contactIDNumber<<" *****"<<std::endl<<std::endl;
+    
     std::cout<<"IMIE: ";
     std::cin.ignore();
-    getline(std::cin,nowyKontakt.imie);
+    getline(std::cin,newContact.firstName);
+    
     std::cout<<"NAZWISKO: ";
     std::cin.sync();
-    getline(std::cin,nowyKontakt.nazwisko);
+    getline(std::cin,newContact.lastName);
+    
     std::cout<<"NUMER KONTAKTOWY: ";
-    nowyKontakt.numerTelefonu=wprowadzNumerTelefonu();
+    std::cin.sync();
+    getline(std::cin,newContact.phoneNumber);
+    
     std::cout<<"ADRES ZAMIESZKANIA: ";
     std::cin.sync();
-    getline(std::cin,nowyKontakt.adresZamieszkania);
+    getline(std::cin,newContact.address);
+    
     std::cout<<"ADRES E-MAIL: ";
     std::cin.sync();
-    getline(std::cin,nowyKontakt.adresEmail);
+    getline(std::cin,newContact.emailAddress);
+    
     std::cout<<std::endl;
     
-    plik<<nowyKontakt.numerIdentyfikacyjny<<"|";
-    plik<<nowyKontakt.imie<<"|";
-    plik<<nowyKontakt.nazwisko<<"|";
-    plik<<nowyKontakt.numerTelefonu<<"|";
-    plik<<nowyKontakt.adresZamieszkania<<"|";
-    plik<<nowyKontakt.adresEmail<<"|"<<std::endl;
+    file<<newContact.idNumber<<"|";
+    file<<newContact.firstName<<"|";
+    file<<newContact.lastName<<"|";
+    file<<newContact.phoneNumber<<"|";
+    file<<newContact.address<<"|";
+    file<<newContact.emailAddress<<"|"<<std::endl;
     
-    Kontakt.push_back(KsiazkaAdresowa(nowyKontakt));
+    Contact.push_back(AddressBook(newContact));
     
-    plik.close();
+    file.close();
 }
 
-void wyswietlWszystkieKontakty(std::vector<KsiazkaAdresowa>&Kontakt){
-    std::vector<KsiazkaAdresowa>::iterator itr;
+void displayContact(std::vector<AddressBook>Contact, std::vector<AddressBook>::iterator itr){
+    std::cout<<"********** KONTAKT (NR ID:"<<itr->idNumber<<") **********"<<std::endl<<std::endl;
+    std::cout<<"IMIE I NAZWISKO: "<<itr->firstName<<" "<<itr->lastName<<std::endl;
+    std::cout<<"NR TELEFONU: "<<itr->phoneNumber<<std::endl;
+    std::cout<<"ADRES: "<<itr->address<<std::endl;
+    std::cout<<"E-MAIL: "<<itr->emailAddress<<std::endl;
+    std::cout<<std::endl;
+}
+
+void displayAllContacts(std::vector<AddressBook>Contacts){
+    std::vector<AddressBook>::iterator itr;
     
     std::cout<<std::endl<<std::endl;
     std::cout<<"********** KSIAZKA ADRESOWA **********"<<std::endl<<std::endl;
-    for(itr=Kontakt.begin(); itr!=Kontakt.end(); itr++) {
-        std::cout<<"********** KONTAKT (NR ID:"<<itr->numerIdentyfikacyjny<<") **********"<<std::endl<<std::endl;
-        std::cout<<"IMIE I NAZWISKO: "<<itr->imie<<" "<<itr->nazwisko<<std::endl;
-        std::cout<<"NR TELEFONU: "<<itr->numerTelefonu<<std::endl;
-        std::cout<<"ADRES: "<<itr->adresZamieszkania<<std::endl;
-        std::cout<<"E-MAIL: "<<itr->adresEmail<<std::endl;
-        std::cout<<std::endl;
+    for(itr=Contacts.begin(); itr!=Contacts.end(); itr++) {
+        displayContact(Contacts, itr);
     }
     std::cout<<"Nacisnij ENTER aby wrocic do MENU...";
     getchar();
 }
 
-void znajdzKontakt(std::vector<KsiazkaAdresowa>&Kontakt) {
-    std::vector<KsiazkaAdresowa>::iterator itr;
-    std::string nazwaKontaktu;
-    bool znaleziono=false;
+
+void findContact(std::vector<AddressBook>Contacts) {
+    std::vector<AddressBook>::iterator itr;
+    std::string contactName;
+    bool found=false;
     
     std::cout<<std::endl<<std::endl;
     std::cout<<"********** SZUKAJ KONTAKTU **********"<<std::endl;
     std::cout<<std::endl;
     std::cout<<"ZNAJDZ KONTAKT (PODAJ IMIE LUB NAZWISKO): ";
-    std::cin.sync();
-    getline(std::cin,nazwaKontaktu);
+    std::cin.ignore();
+    getline(std::cin,contactName);
     
     std::cout<<std::endl;
-    for(itr=Kontakt.begin(); itr!=Kontakt.end(); itr++) {
-        if(itr->imie==nazwaKontaktu||itr->nazwisko==nazwaKontaktu) {
-            std::cout<<"********** KONTAKT (NR ID:"<<itr->numerIdentyfikacyjny<<") **********"<<std::endl<<std::endl;
-            std::cout<<"IMIE I NAZWISKO: "<<itr->imie<<" "<<itr->nazwisko<<std::endl;
-            std::cout<<"NR TELEFONU: "<<itr->numerTelefonu<<std::endl;
-            std::cout<<"ADRES: "<<itr->adresZamieszkania<<std::endl;
-            std::cout<<"E-MAIL: "<<itr->adresEmail<<std::endl;
-            znaleziono=true;
-            std::cout<<std::endl<<std::endl;
+    for(itr=Contacts.begin(); itr!=Contacts.end(); itr++) {
+        if(itr->firstName==contactName||itr->lastName==contactName) {
+            displayContact(Contacts, itr);
+            found=true;
         }
     }
     
-    if(znaleziono==false) {
-        std::cout<<"NIE ZNALEZIONO KONTAKTU "<<nazwaKontaktu<<std::endl<<std::endl;
+    if(found==false) {
+        std::cout<<"NIE ZNALEZIONO KONTAKTU "<<contactName<<std::endl<<std::endl;
     }
     std::cout<<"Nacisnij ENTER aby wrocic do MENU...";
     getchar();
 }
 
-void liczbaKontaktow(std::vector<KsiazkaAdresowa>&Kontakt) {
-    if(Kontakt.size()!=0) {
-        std::cout<<"W TWOJEJ KSIAZCE ADRESOWEJ ZAPISANYCH JEST "<<Kontakt.size()<<" KONTAKTOW"<<std::endl;
+void displayTheAmountOfContacts(std::vector<AddressBook>Contact) {
+    if(Contact.size()!=0) {
+        std::cout<<"W TWOJEJ KSIAZCE ADRESOWEJ ZAPISANYCH JEST "<<Contact.size()<<" KONTAKTOW"<<std::endl;
     } else {
         std::cout<<"KSIAZKA ADRESOWA JEST PUSTA"<<std::endl;
     }
 }
 
-void wczytajKontaktyZPliku(std::vector<KsiazkaAdresowa>&Kontakt,int *numerIdKontaktu) {
-    std::fstream plik;
-    std::string linia;
-    int nr_linii=1; // numery linii zaczynaja sie od 1
-    
-    KsiazkaAdresowa nowyKontakt;
-    
-    plik.open("mojekontakty.txt", std::ios::in);
-    if(plik.good()==false) {
-        std::cout<<"Nie mozna otworzyc pliku z danymi kontaktowymi!"<<std::endl<<std::endl;
-        std::cout<<"Nacisnij ENTER aby utworzyc nowa ksiazke adresowa...";
-        getchar();
-        plik.open("mojekontakty.txt",std::ios::out | std::ios::app);
-    }
-    while (getline(plik, linia)) {
-        
-        switch (nr_linii) {
-            case 1: {
-                nowyKontakt.numerIdentyfikacyjny=zamianaStringNaInt(linia);
-                *numerIdKontaktu=nowyKontakt.numerIdentyfikacyjny;
-            }
-                break;
-            case 2:
-                nowyKontakt.imie=linia;
-                break;
-            case 3:
-                nowyKontakt.nazwisko=linia;
-                break;
-            case 4:
-                nowyKontakt.numerTelefonu=linia;
-                break;
-            case 5:
-                nowyKontakt.adresZamieszkania=linia;
-                break;
-            case 6: {
-                nowyKontakt.adresEmail=linia;
-                Kontakt.push_back(KsiazkaAdresowa(nowyKontakt));
-            }
-                break;
-        }
-        nr_linii++;
-        if(nr_linii==7)
-            nr_linii=1;
-    }
-    plik.close();
-}
-
-
-
-void zakonczDzialaniePogramu() {
+void quitTheProgram() {
     std::cout<<std::endl<<std::endl;
-    
     std::cout<<"DZIEKUJEMY ZA SKORZYSTANIE Z NASZEGO PROGRAMU :)"<<std::endl<<std::endl;
     std::cout<<"Nacisnij ENTER aby zakonczyc dzialanie programu";
     getchar();
     exit(0);
 }
 
-void wyswietlPustaKsiazkaAdresowa() {
+void displayEmptyAddressBook() {
     std::cout<<std::endl<<std::endl;
     std::cout<<"KSIAZKA ADRESOWA JEST PUSTA"<<std::endl<<std::endl;
     std::cout<<"Nacisnij ENTER aby kontynuowac...";
     getchar();
     std::cout<<std::endl<<std::endl;
-    
 }
 
-void wyswietlMenu(std::vector<KsiazkaAdresowa>&Kontakt) {
+void displayMENU(std::vector<AddressBook>&Contact) {
     std::cout<<std::endl<<std::endl;
     
     std::cout<<"********** KSIAZKA ADRESOWA **********"<<std::endl;
     std::cout<<std::endl;
-    liczbaKontaktow(Kontakt);
+    displayTheAmountOfContacts(Contact);
     std::cout<<std::endl;
     std::cout<<"1.\tDODAJ NOWY KONTAKT"<<std::endl;
     std::cout<<"2.\tWYSWIETL WSZYSTKIE KONTAKTY"<<std::endl;
@@ -215,111 +164,105 @@ void wyswietlMenu(std::vector<KsiazkaAdresowa>&Kontakt) {
     std::cout<<"Wybierz odpowiedni klawisz: ";
 }
 
-void nowaWczytajKontaktyZPliku(std::vector<KsiazkaAdresowa>&Kontakt,int *numerIdKontaktu) {
-    std::fstream plik;
-    std::string linia;
-    int nr_linii=1; // numery linii zaczynaja sie od 1
-    int numerFragmentuLinii=1;
-    std::size_t dlugoscLinii;
-    std::string fragmentLinii;
-    KsiazkaAdresowa nowyKontakt;
+std::vector<AddressBook>loadContactsFromAFile(int &contactIDNumber) {
+    std::vector<AddressBook>Contact;
+    AddressBook newContact;
+    std::fstream file;
+    std::string fileLine;
+    int numberOfFileLine=1;
+    std::size_t fileLineLength;
+    int numberOfContactField=1;
     
-    plik.open("mojekontakty.txt", std::ios::in);
-    if(plik.good()==false) {
+    std::string contactField;
+    
+    file.open("mojekontakty.txt", std::ios::in);
+    if(file.good()==false) {
         std::cout<<"Nie mozna otworzyc pliku z danymi kontaktowymi!"<<std::endl<<std::endl;
         std::cout<<"Nacisnij ENTER aby utworzyc nowa ksiazke adresowa...";
         getchar();
-        plik.open("mojekontakty.txt",std::ios::out | std::ios::app);
+        file.open("mojekontakty.txt",std::ios::out | std::ios::app);
     }
-    while (getline(plik, linia)) {
+    while (getline(file, fileLine)) {
         
-        dlugoscLinii=linia.length();
+        fileLineLength=fileLine.length();
         
         // trzeba stworzyc funkcje ktora bedzie wyluskiwala z linii odp fragmenty kontaktu
-        for(int i=0;i<dlugoscLinii;i++){
-            if(linia[i]!='|'){
-                fragmentLinii=fragmentLinii+linia[i];
+        for(int i=0;i<fileLineLength;i++){
+            if(fileLine[i]!='|'){
+                contactField=contactField+fileLine[i];
             } else {
                 
-                switch (numerFragmentuLinii) {
+                switch (numberOfContactField) {
                     case 1: {
-                        nowyKontakt.numerIdentyfikacyjny=zamianaStringNaInt(fragmentLinii);
-                        *numerIdKontaktu=nowyKontakt.numerIdentyfikacyjny;
+                        newContact.idNumber=convertIntToString(contactField);
+                        contactIDNumber=newContact.idNumber;
                     }
                         break;
                     case 2:
-                        nowyKontakt.imie=fragmentLinii;
+                        newContact.firstName=contactField;
                         break;
                     case 3:
-                        nowyKontakt.nazwisko=fragmentLinii;
+                        newContact.lastName=contactField;
                         break;
                     case 4:
-                        nowyKontakt.numerTelefonu=fragmentLinii;
+                        newContact.phoneNumber=contactField;
                         break;
                     case 5:
-                        nowyKontakt.adresZamieszkania=fragmentLinii;
+                        newContact.address=contactField;
                         break;
                     case 6: {
-                        nowyKontakt.adresEmail=fragmentLinii;
-                        Kontakt.push_back(KsiazkaAdresowa(nowyKontakt));
+                        newContact.emailAddress=contactField;
+                        Contact.push_back(AddressBook(newContact));
                     }
                         break;
                 }
                 
-                numerFragmentuLinii++;
-                fragmentLinii="";
+                numberOfContactField++;
+                contactField="";
                 
-                if(numerFragmentuLinii==7){
-                    numerFragmentuLinii=1;
+                if(numberOfContactField==7){
+                    numberOfContactField=1;
                 }
-                
             }
-            
         }
-        
-        nr_linii++;
-        
+        numberOfFileLine++;
     }
-    plik.close();
+    file.close();
+    
+    return Contact;
 }
 
-
-
 int main() {
-    std::vector<KsiazkaAdresowa>nowyKontakt;
     int numerIdentyfikacyjnyKontaktu=1;
-    char wybor;
-    
-    nowaWczytajKontaktyZPliku(nowyKontakt,&numerIdentyfikacyjnyKontaktu);
+    char selectionKey;
+    std::vector<AddressBook>newContact(loadContactsFromAFile(numerIdentyfikacyjnyKontaktu));
     
     while (true) {
-        wyswietlMenu(nowyKontakt);
+        displayMENU(newContact);
         
-        wybor=getchar();
+        selectionKey=getchar();
         
-        
-        switch(wybor) {
+        switch(selectionKey) {
             case '1': {
-                dodajNowyKontakt(nowyKontakt,numerIdentyfikacyjnyKontaktu);
-                numerIdentyfikacyjnyKontaktu++;
+                addNewContact(newContact,numerIdentyfikacyjnyKontaktu);
             }
                 break;
             case '2': {
-                if(nowyKontakt.size()!=0)
-                    wyswietlWszystkieKontakty(nowyKontakt);
+                if(newContact.size()!=0)
+                    displayAllContacts(newContact);
                 else
-                    wyswietlPustaKsiazkaAdresowa();
+                    displayEmptyAddressBook();
             }
                 break;
             case '3': {
-                if(nowyKontakt.size()!=0)
-                    znajdzKontakt(nowyKontakt);
+                if(newContact.size()!=0)
+                    findContact(newContact);
                 else
-                    wyswietlPustaKsiazkaAdresowa();
+                    displayEmptyAddressBook();
             }
                 break;
             case '0': {
-                zakonczDzialaniePogramu();
+                quitTheProgram();
                 {
                     break;
                 default:
@@ -330,9 +273,3 @@ int main() {
     }
     return 0;
 }
-
-
-
-
-
-
